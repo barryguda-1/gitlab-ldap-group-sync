@@ -1,0 +1,78 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "app.fullname" . }}
+  labels:
+    app: {{ template "app.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "app.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      affinity:
+        {{- with .Values.nodeAffinity }}
+        nodeAffinity: {{ tpl (toYaml .) $ | nindent 10 }}
+        {{- end }}
+        {{- with .Values.podAffinity }}
+        podAffinity: {{ tpl (toYaml .) $ | nindent 10 }}
+        {{- end }}
+        {{- if eq .Values.podAntiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                app: {{ template "app.fullname" . }}
+                release: "{{ .Release.Name }}"
+        {{- else if eq .Values.podAntiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: {{ template "app.fullname" . }}
+                  release: "{{ .Release.Name }}"
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector: {{ tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations: {{ tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}
+      {{- end }}
+      containers:
+        - name: {{ template "app.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.internalPort }}
+          livenessProbe: {{ toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe: {{ toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          volumeMounts:
+          - name: {{ template "app.fullname" . }}
+            mountPath: /opt/gitlab_ldap_group_sync/config.yml
+            subPath: config.yml
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+      securityContext:
+        runAsUser: 1000
+      volumes:
+      - name: {{ template "app.fullname" . }}
+        secret:
+          secretName: {{ template "app.fullname" . }}

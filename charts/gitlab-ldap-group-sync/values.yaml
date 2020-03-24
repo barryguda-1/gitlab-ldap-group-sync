@@ -1,0 +1,76 @@
+# Default values for back.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+appId:
+replicaCount: 1
+image:
+  repository: kubekub/gitlab-ldap-group-sync
+  tag: latest
+  pullPolicy: Always
+service:
+  name: http
+  type: ClusterIP
+  externalPort: 8080
+  internalPort: 8080
+
+config: {}
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+## Readiness Probe. The block is directly forwarded into the deployment, so you can use whatever readinessProbe configuration you want.
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 5
+  timeoutSeconds: 3
+  periodSeconds: 5
+
+## Pod annotations
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+##
+podAnnotations: {}
+
+## Node Affinity. The value is evaluated as a template.
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#node-affinity-beta-feature
+##
+nodeAffinity: {}
+## Pod Affinity. The value is evaluated as a template.
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+##
+podAffinity: {}
+## Pod AntiAffinity
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+##
+podAntiAffinity: soft
+
+## Node labels for pod assignment. The value is evaluated as a template.
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+##
+nodeSelector: {}
+## Tolerations for pod assignment. The value is evaluated as a template.
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+##
+tolerations: {}
+
+## Resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi

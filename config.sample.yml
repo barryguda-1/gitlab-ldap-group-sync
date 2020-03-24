@@ -1,5 +1,7 @@
 ---
+## Service port, enables confirmation that it is working
 port: 8080
+## syncronization interval, eg 5m, 1h
 syncInterval: 5m
 gitlab:
   api: https://repo.mwaysolutions.com/api/v4
@@ -15,11 +17,19 @@ ownersGroups: admins
 ownerAccessLevel: 50
 defaultAccessLevel: 30
 groupMappings:
+## The group id can be found in the properties of every gitlab project
   '1':
     groupPath: service-ops/devops
+## removeUnlistedUsers: in case of true, will remove all users added previously not contained in the ldap group
     removeUnlistedUsers: true
     ldapGroups:
     - ldapGroupName: DevOps_group
+## Access level information in https://docs.gitlab.com/ee/user/permissions.html#project-members-permissions
+## guest: 10
+## reporter: 20
+## developer: 30
+## maintainer: 40
+## owner: 50
       access_level: 50
   '10':
     groupPath: service-ops/applications

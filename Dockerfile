@@ -7,10 +7,10 @@ ENV NODE_ENV production
 WORKDIR /opt/gitlab_ldap_group_sync
 COPY . /opt/gitlab_ldap_group_sync
 
-RUN npm prune && npm install
+RUN npm prune \
+  && npm install  \
+  && touch /opt/gitlab_ldap_group_sync/config.yml
 
-RUN touch /opt/gitlab_ldap_group_sync/config.yml
-
-CMD ["node", "./bin/www"]
+CMD ["npm", "start"]
 
 EXPOSE 8080

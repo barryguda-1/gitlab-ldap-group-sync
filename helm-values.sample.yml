@@ -1,0 +1,33 @@
+---
+config:
+  port: 8080
+  syncInterval: 5m
+  gitlab:
+    api: https://repo.mwaysolutions.com/api/v4
+    privateToken: My_S3Cr3T_T0k3n
+  ldap:
+    servers:
+    - url: ldaps://ldap.example.com
+      baseDN: OU=AADDC Users,DC=example,DC=com
+      username: ldap@example.com
+      password: mY_S3Cr3T_P455W0Rd
+  groupPrefix: gitlab-
+  ownersGroups: admins
+  ownerAccessLevel: 50
+  defaultAccessLevel: 30
+  groupMappings:
+    '1':
+      groupPath: service-ops/devops
+      removeUnlistedUsers: true
+      ldapGroups:
+      - ldapGroupName: DevOps_group
+        access_level: 50
+    '10':
+      groupPath: service-ops/applications
+      removeUnlistedUsers: false
+      ldapGroups:
+      - ldapGroupName: Applications_group
+        access_level: 50
+      - ldapGroupName: Applications_developers_group
+        access_level: 30
+  
